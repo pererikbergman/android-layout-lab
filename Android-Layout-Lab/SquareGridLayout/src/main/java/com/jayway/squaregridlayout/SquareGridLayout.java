@@ -1,5 +1,5 @@
 /*
- * (C) Copyright 2013 Jayway AB (http://www.jayway.com/).
+ * (C) Copyright 2014 Jayway AB (http://www.jayway.com/).
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
