@@ -1,20 +1,26 @@
+/*
+ * (C) Copyright 2013 Jayway AB (http://www.jayway.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.jayway.squaregridlayout;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 public class SquareGridLayout extends ViewGroup {
-    private static final int DEFAULT_NUM_OF_COLS  = 4;
-    private static final int DEFAULT_INITIAL_SIZE = 1;
-
-    private int mCols;
-    private int mInitialSize;
-
-    private int mColSize;
 
     /**
      * Class constructor used when programmatically add this component.
@@ -56,154 +62,32 @@ public class SquareGridLayout extends ViewGroup {
      * @param attrs
      */
     private void init(AttributeSet attrs) {
-        if ( attrs == null ) {
-            mCols        = DEFAULT_NUM_OF_COLS;
-            mInitialSize = DEFAULT_INITIAL_SIZE;
-        } else {
-            TypedArray attributes = getContext().obtainStyledAttributes(
-                    attrs,
-                    R.styleable.SquareGridLayout);
-
-            mCols = attributes.getInt(R.styleable.SquareGridLayout_cols, DEFAULT_NUM_OF_COLS);
-            mInitialSize = attributes.getInt(R.styleable.SquareGridLayout_initialSize, DEFAULT_INITIAL_SIZE);
-
-            attributes.recycle();
-        }
+        // TODO: Read the custom attributes.
     }
 
     /**
-     * Compute the size of itself and it’s children.
+     * Compute the size of itself and its children.
      *
      * {@inheritDoc}
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int widthMeasureSize  = MeasureSpec.getSize(widthMeasureSpec);
-        final int widthPadding      = getPaddingLeft() + getPaddingRight();
-        final int heightPadding     = getPaddingTop()  + getPaddingBottom();
-
-        // Ignoring children that is 'gone'
-        int childCount = 0;
-        for (int i = 0; i < getChildCount(); ++i) {
-            if (getChildAt(i).getVisibility() != GONE) {
-                childCount++;
-            }
-        }
-
-        final int rows = Math.max(mInitialSize-1, (childCount + mInitialSize * mInitialSize - 2) / mCols);
-
-        mColSize = (widthMeasureSize - widthPadding) / mCols;
-
-        int idxComp = 0;
-        for (int i = 0; i < getChildCount(); ++i) {
-            int idx = i - idxComp;
-            int x = i % mCols;
-            int y = i / mCols;
-
-            final View child = getChildAt(y * mColSize + x);
-            if (child == null) {
-                continue;
-            }
-
-            if (child.getVisibility() == GONE) {
-                idxComp++;
-                continue;
-            }
-
-            if (idx == 0) {
-                measureChildWithMargins(child,
-                        MeasureSpec.makeMeasureSpec(mColSize * 2, MeasureSpec.EXACTLY), 0,
-                        MeasureSpec.makeMeasureSpec(mColSize * 2, MeasureSpec.EXACTLY), 0
-                );
-            } else {
-                measureChildWithMargins(child,
-                        MeasureSpec.makeMeasureSpec(mColSize, MeasureSpec.EXACTLY), 0,
-                        MeasureSpec.makeMeasureSpec(mColSize, MeasureSpec.EXACTLY), 0
-                );
-            }
-        }
+        // TODO: Measure all children and call on setMeasuredDimension with right size.
 
         setMeasuredDimension(
-                widthMeasureSize,
-                (rows + 1) * mColSize + heightPadding
+                MeasureSpec.getSize(widthMeasureSpec),
+                MeasureSpec.getSize(heightMeasureSpec)
         );
     }
 
     /**
-     * Compute the bounds of it’s children for drawing.
+     * Compute the bounds of its children for drawing.
      *
      * {@inheritDoc}
      */
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int pl = getPaddingLeft();
-        final int pt = getPaddingTop();
-
-        int idxComp = 0;
-        for (int i = 0; i < getChildCount(); ++i) {
-            View view = getChildAt(i);
-            if ( view.getVisibility() == GONE) {
-                idxComp++;
-                continue;
-            }
-            int idx   = convertIndex(i-idxComp, mCols, mInitialSize);
-            int x     = idx % mCols;
-            int y     = idx / mCols;
-            int size  = mColSize;
-
-            if (idx == 0) {
-                size *= mInitialSize;
-            }
-
-            SquareGridLayoutParams lps = (SquareGridLayoutParams) view.getLayoutParams();
-
-            view.layout(
-                    pl + x       * size + lps.leftMargin,
-                    pt + y       * size + lps.topMargin,
-                    pl + (x + 1) * size - lps.rightMargin,
-                    pt + (y + 1) * size - lps.bottomMargin
-            );
-
-            final String toastString = lps.getToastString();
-            if ( toastString != null ) {
-                view.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Toast.makeText(getContext(), toastString, Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-    }
-
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    protected LayoutParams generateDefaultLayoutParams() {
-        return new SquareGridLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    }
-
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    protected LayoutParams generateLayoutParams(LayoutParams p) {
-        return new SquareGridLayoutParams(p);
-    }
-
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new SquareGridLayoutParams(getContext(), attrs);
+        // TODO: Layout all children and give them their bounds.
     }
 
     /**
@@ -233,41 +117,4 @@ public class SquareGridLayout extends ViewGroup {
         return idx + initialSize * initialSize - 1;
     }
 
-    public class SquareGridLayoutParams extends MarginLayoutParams {
-
-        private String mToastString;
-
-        public SquareGridLayoutParams(Context c, AttributeSet attrs) {
-            super(c, attrs);
-            init(attrs);
-        }
-
-        public SquareGridLayoutParams(int width, int height) {
-            super(width, height);
-        }
-
-        public SquareGridLayoutParams(MarginLayoutParams source) {
-            super(source);
-        }
-
-        public SquareGridLayoutParams(ViewGroup.LayoutParams source) {
-            super(source);
-        }
-
-        private void init(AttributeSet attrs) {
-            if (attrs != null) {
-                TypedArray attributes = getContext().obtainStyledAttributes(
-                        attrs,
-                        R.styleable.SquareGridLayout);
-
-                mToastString = attributes.getString(R.styleable.SquareGridLayout_layout_toast_string);
-
-                attributes.recycle();
-            }
-        }
-
-        public String getToastString() {
-            return mToastString;
-        }
-    }
 }

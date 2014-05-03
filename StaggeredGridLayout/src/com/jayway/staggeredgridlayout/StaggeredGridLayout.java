@@ -1,17 +1,26 @@
+/*
+ * (C) Copyright 2013 Jayway AB (http://www.jayway.com/).
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
 package com.jayway.staggeredgridlayout;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.view.View;
 import android.view.ViewGroup;
 
 public class StaggeredGridLayout extends ViewGroup {
-    private static final int DEFAULT_NUM_OF_COLS  = 2;
-
-    private int mCols;
-
-    private int mColWidth;
 
     /**
      * Class constructor used when programmatically add this component.
@@ -53,151 +62,32 @@ public class StaggeredGridLayout extends ViewGroup {
      * @param attrs
      */
     private void init(AttributeSet attrs) {
-        if ( attrs == null ) {
-            mCols = DEFAULT_NUM_OF_COLS;
-        } else {
-            TypedArray attributes = getContext().obtainStyledAttributes(
-                    attrs,
-                    R.styleable.SquareGridLayout);
-
-            mCols = attributes.getInt(R.styleable.SquareGridLayout_cols, DEFAULT_NUM_OF_COLS);
-
-            attributes.recycle();
-        }
+        // TODO: Read the custom attributes.
     }
 
     /**
-     * Compute the size of itself and it’s children.
+     * Compute the size of itself and its children.
      *
      * {@inheritDoc}
      */
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int widthMeasureSize  = MeasureSpec.getSize(widthMeasureSpec);
-        final int heightMeasureSize = MeasureSpec.getSize(heightMeasureSpec);
-        final int widthPadding      = getPaddingLeft() + getPaddingRight();
-
-        int[] columns = new int[mCols];
-
-        mColWidth = (widthMeasureSize - widthPadding) / mCols;
-        for (int i = 0; i < getChildCount(); ++i) {
-            final View child = getChildAt(i);
-
-            measureChildWithMargins(child,
-                    MeasureSpec.makeMeasureSpec(widthMeasureSize, MeasureSpec.UNSPECIFIED),  0,
-                    MeasureSpec.makeMeasureSpec(heightMeasureSize, MeasureSpec.UNSPECIFIED), 0
-            );
-
-            int col     = getLowestColumn(columns);
-            float ratio = mColWidth / (float)child.getMeasuredWidth();
-
-            int childHeight = (int) (child.getMeasuredHeight() * ratio);
-            columns[col] += childHeight;
-        }
+        // TODO: Measure all children and call on setMeasuredDimension with right size.
 
         setMeasuredDimension(
-                widthMeasureSize,
-                columns[getHighestColumn(columns)]
+                MeasureSpec.getSize(widthMeasureSpec),
+                MeasureSpec.getSize(heightMeasureSpec)
         );
     }
 
-
-
     /**
-     * Compute the bounds of it’s children for drawing.
+     * Compute the bounds of its children for drawing.
      *
      * {@inheritDoc}
      */
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        final int pl = getPaddingLeft();
-        final int pt = getPaddingTop();
-
-        int[] columns = new int[mCols];
-        for (int i = 0; i < getChildCount(); ++i) {
-            final View child = getChildAt(i);
-            if (child.getVisibility() == GONE) {
-                continue;
-            }
-
-            int col     = getLowestColumn(columns);
-            float ratio = mColWidth / (float)child.getMeasuredWidth();
-
-            int childHeight = (int) (child.getMeasuredHeight() * ratio);
-
-            MarginLayoutParams lps = (MarginLayoutParams) child.getLayoutParams();
-            child.layout(
-                    pl + col       * mColWidth      + lps.leftMargin,
-                    pt + columns[col]               + lps.topMargin,
-                    pl + (col + 1) * mColWidth      - lps.rightMargin,
-                    pt + columns[col] + childHeight - lps.bottomMargin
-            );
-
-            columns[col] += childHeight;
-        }
+        // TODO: Layout all children and give them their bounds.
     }
 
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    protected LayoutParams generateDefaultLayoutParams() {
-        return new MarginLayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-    }
-
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    protected LayoutParams generateLayoutParams(LayoutParams p) {
-        return new MarginLayoutParams(p);
-    }
-
-    /**
-     * Needed to be able to use measureChildWithMargins.
-     *
-     * @return
-     */
-    @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new MarginLayoutParams(getContext(), attrs);
-    }
-
-    /**
-     * Returns the column with the lowest value.
-     *
-     * @param columns
-     * @return
-     */
-    private int getLowestColumn(int[] columns) {
-        int lowest = 0;
-        for (int i = 1; i < columns.length; ++i) {
-            if (columns[i] < columns[lowest]) {
-                lowest = i;
-            }
-        }
-
-        return lowest;
-    }
-
-    /**
-     * Returns the column with the highest value.
-     *
-     * @param columns
-     * @return
-     */
-    private int getHighestColumn(int[] columns) {
-        int highest = 0;
-        for (int i = 1; i < columns.length; ++i) {
-            if (columns[i] > columns[highest]) {
-                highest = i;
-            }
-        }
-
-        return highest;
-    }
 }
