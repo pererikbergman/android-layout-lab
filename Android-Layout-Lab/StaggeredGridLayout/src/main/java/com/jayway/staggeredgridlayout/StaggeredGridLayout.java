@@ -23,11 +23,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public class StaggeredGridLayout extends ViewGroup {
-    private static final int DEFAULT_NUM_OF_COLS  = 2;
-
-    private int mCols;
-
-    private int mColWidth;
 
     /**
      * Class constructor used when programmatically add this component.
