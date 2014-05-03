@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SquareGridLayout">
+        <attr name="cols"                format="integer"/>
+        <attr name="initialSize"         format="integer"/>
+        <attr name="layout_toast_string" format="string"/>
+    </declare-styleable>
+</resources>
